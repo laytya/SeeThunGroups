@@ -1,7 +1,7 @@
 ## Interface: 11200
 ## Title: SeeThunGroups
-## Version: 1.2
-## Author: moh
+## Version: 1.3
+## Author: moh, updates by laytya@github
 
 Global.lua
 Font.lua

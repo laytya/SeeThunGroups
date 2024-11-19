@@ -10,7 +10,7 @@ local unpack = unpack
 local UIscale = UIParent:GetEffectiveScale()
 
 SeeThunGroups.UI = {}
-SeeThunGroups.UI.nameCharLimit = 12
+SeeThunGroups.UI.nameCharLimit = 4
 SeeThunGroups.UI.nameWidth = 80
 SeeThunGroups.UI.sortBy = 1 -- 1 class, 2 name
 SeeThunGroups.UI.SORT_BY_CLASS = 1
@@ -331,32 +331,72 @@ canvas:SetAllPoints()
 canvas.player = {}
 canvas.slot = {}
 
+local startAngleBase, mapTexture, itemOffset, mapLevels, placePerLevel, angles
+local encMap = SeeThunGroups.map
+if encMap == "KT" then
+	mapTexture = {
+		[1] = "Interface\\AddOns\\SeeThunGroups\\Textures\\KTRoom4",
+		[2] = ""
+	}
+else
+	mapTexture = {
+		[1] = "Interface\\AddOns\\SeeThunGroups\\Textures\\bg",
+		[2] = [[Interface\AddOns\SeeThunGroups\Textures\eye]]
+	}
+end
+
 local t
 
 t = canvas:CreateTexture(nil, 'BACKGROUND')
 canvas.background = t
-t:SetTexture([[Interface\AddOns\SeeThunGroups\Textures\bg]])
+t:SetTexture(mapTexture[1])
 t:SetPoint('CENTER', canvas)
 t:SetWidth(UIParent:GetHeight() * UIscale)
 t:SetHeight(UIParent:GetHeight() * UIscale)
 
 t = canvas:CreateTexture(nil, 'ARTWORK')
 canvas.cthun_icon = t
-t:SetTexture([[Interface\AddOns\SeeThunGroups\Textures\eye]])
+t:SetTexture(mapTexture[2])
 t:SetPoint('CENTER', 0, 0)
 t:SetWidth(250)
 t:SetHeight(250)
 
-local startAngleBase = {
-	22.5,
-	22.5 + (22.5 / 2),
-	22.5 + (22.5 / 2)
-}
-local itemOffset = {
-	canvas.background:GetHeight() / 5 - 32,
-	canvas.background:GetHeight() / 3 - 32,
-	canvas.background:GetHeight() / 2 - 32 - 16
-}
+if encMap == "KT" then
+	startAngleBase = {
+		22.5,
+		22.5 + (22.5 / 2),
+		22.5 + (22.5 / 2)
+	}
+	itemOffset  = {
+		canvas.background:GetHeight() / 5.4 - 32,
+		canvas.background:GetHeight() / 3.5 - 32,
+		canvas.background:GetHeight() / 2.5 - 32 ,
+		canvas.background:GetHeight() / 2 - 32
+	}
+	mapLevels = 4
+	placePerLevel = { 12, 8, 8, 12 }
+	angles = {
+		[1] = {20, 0, -20, -70, -90, -110, -160, -180, -200, -250, -270, -290},
+		[2] = 1, 
+		[3] = 1,
+		[4] = {0, -45, -80, -100, -125, -145, -180, -215, -235, -260, -280, -315}
+	}
+else
+	startAngleBase = {
+		0,
+		0,
+		22.5,
+		0,
+	}
+	itemOffset = {
+		canvas.background:GetHeight() / 5 - 32,
+		canvas.background:GetHeight() / 3 - 32,
+		canvas.background:GetHeight() / 2 - 32 - 16
+	}
+	mapLevels = 3
+	placePerLevel = { 8, 16, 16 }
+	angles = { 1, 1, 1 }
+end
 
 -- prepare canvas
 do
@@ -372,13 +412,11 @@ do
 	local startAngle
 	local uid = 1
 	
-	for ringNumber = 1, 3, 1 do
+	for ringNumber = 1, mapLevels, 1 do
 		startAngle = startAngleBase[ringNumber]
-		
-		if ringNumber > 1 then
-			__ringItemCount = 16
-		end
-		
+
+		__ringItemCount = placePerLevel[ringNumber]
+		local stratUid = uid - 1
 		for ringItemCount = 1, __ringItemCount, 1 do
 			canvas.player[uid] = {}
 			canvas.slot[uid] = {}
@@ -421,8 +459,8 @@ do
 			
 			do
 				classIcon:SetPoint('CENTER', 0, 0)
-				classIcon:SetWidth(32)
-				classIcon:SetHeight(32)
+				classIcon:SetWidth(24)
+				classIcon:SetHeight(24)
 				classIcon:SetTexture(SeeThunGroups.CLASS_ICON.PATH)
 				classIcon:SetTexCoord(unpack(SeeThunGroups.CLASS_ICON.WARRIOR))
 			end
@@ -467,11 +505,17 @@ do
 				local x, y
 				x = 0
 				y = 0
+				 
+				if angles[ringNumber] ~= 1 then 
+					startAngle = angles[ringNumber][uid - stratUid] - 90 
+				end
+					
 				x = x + (itemOffset[ringNumber] * cos(-startAngle))
 				y = y + (itemOffset[ringNumber] * sin(-startAngle)) 
 				slotFrame:SetPoint('CENTER', x, y)
 				playerFrame:SetPoint('CENTER', x, y)
 				startAngle = startAngle - (360 / __ringItemCount)
+				
 			end
 			
 			playerFrame:SetScript('OnDragStart', function()
@@ -559,7 +603,99 @@ do
 		
 	end
 end
+SeeThunGroups.UI.loadCanvas = function()
+	local startAngleBase, mapTexture, itemOffset, mapLevels, placePerLevel, angles
+	local encMap = SeeThunGroups.map
+	if encMap == "KT" then
+		mapTexture = {
+			[1] = "Interface\\AddOns\\SeeThunGroups\\Textures\\KTRoom4",
+			[2] = ""
+		}
+	else
+		mapTexture = {
+			[1] = "Interface\\AddOns\\SeeThunGroups\\Textures\\bg",
+			[2] = [[Interface\AddOns\SeeThunGroups\Textures\eye]]
+		}
+	end
 
+	local t
+
+	t = SeeThunGroups.main_frame.canvas.background
+	t:SetTexture(mapTexture[1])
+	t:SetPoint('CENTER', canvas)
+	t:SetWidth(UIParent:GetHeight() * UIscale)
+	t:SetHeight(UIParent:GetHeight() * UIscale)
+
+	t = SeeThunGroups.main_frame.canvas.cthun_icon
+	t:SetTexture(mapTexture[2])
+	t:SetPoint('CENTER', 0, 0)
+	t:SetWidth(250)
+	t:SetHeight(250)
+
+	if encMap == "KT" then
+		startAngleBase = {
+			0,
+			0,
+			22.5,
+			0,
+		}
+		
+		itemOffset  = {
+			canvas.background:GetHeight() / 5.4 - 32,
+			canvas.background:GetHeight() / 3.5 - 32,
+			canvas.background:GetHeight() / 2.5 - 32 ,
+			canvas.background:GetHeight() / 2 - 32
+		}
+		mapLevels = 4
+		placePerLevel = { 12, 8, 8, 12 }
+		angles = {
+			[1] = {20, 0, -20, -70, -90, -110, -160, -180, -200, -250, -270, -290},
+			[2] = 1, 
+			[3] = 1,
+			[4] = {0, -45, -80, -100, -125, -145, -180, -215, -235, -260, -280, -315}
+		}
+	else
+		startAngleBase = {
+			22.5,
+			22.5 + (22.5 / 2),
+			22.5 + (22.5 / 2)
+		}
+		itemOffset = {
+			canvas.background:GetHeight() / 5 - 32,
+			canvas.background:GetHeight() / 3 - 32,
+			canvas.background:GetHeight() / 2 - 32 - 16
+		}
+		mapLevels = 3
+		placePerLevel = { 8, 16, 16 }
+		angles = { 1, 1, 1 }
+	end
+	local startAngle, __ringItemCount
+	local uid = 1
+	for ringNumber = 1, mapLevels, 1 do
+		startAngle = startAngleBase[ringNumber]
+
+		__ringItemCount = placePerLevel[ringNumber]
+		local stratUid = uid - 1
+		for ringItemCount = 1, __ringItemCount, 1 do
+			do
+				local x, y
+				x = 0
+				y = 0
+				 
+				if angles[ringNumber] ~= 1 then 
+					startAngle =  angles[ringNumber][uid - stratUid]  - 90
+				end
+					
+				x = x + (itemOffset[ringNumber] * cos(-startAngle))
+				y = y + (itemOffset[ringNumber] * sin(-startAngle))
+				canvas.player[uid]:SetPoint('CENTER', x, y)
+				canvas.slot[uid]:SetPoint('CENTER', x, y)
+				startAngle = startAngle - (360 / __ringItemCount)
+			end
+			uid = uid + 1
+		end
+	end
+end
 SeeThunGroups.UI.playerListButtonToCanvas = function(button)
 	local playerFrame = playerList.newPlayerSlotOtherPlayer
 	local point, relativeTo, relativePoint, xOfs, yOfs = playerList.newPlayerSlot:GetPoint()

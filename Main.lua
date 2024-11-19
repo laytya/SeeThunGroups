@@ -35,15 +35,25 @@ frame.RAID_TARGET_UPDATE = function()
 	SeeThunGroups.Player.Update()
 end
 
-SLASH_SEETHUNGROUPS1, SLASH_SEETHUNGROUPS2, SLASH_SEETHUNGROUPS3 = '/seethungroups', '/stg', '/ctg'
-function SlashCmdList.SEETHUNGROUPS(arg)
+local function startGroups(arg)
 	SeeThunGroups.Main.enabled = not SeeThunGroups.Main.enabled
+	SeeThunGroups.map = arg
 	if SeeThunGroups.Main.enabled then
 		SeeThunGroups.Main.RegisterEvents()
 		SeeThunGroups.Player.Update()
+		SeeThunGroups.UI.loadCanvas()
 		SeeThunGroups.main_frame:Show()
 	else
 		SeeThunGroups.Main.UnregisterEvents()
 		SeeThunGroups.main_frame:Hide()
 	end
+end
+
+SLASH_SEETHUNGROUPS1, SLASH_SEETHUNGROUPS2, SLASH_SEETHUNGROUPS3 = '/seethungroups', '/stg', '/ctg'
+function SlashCmdList.SEETHUNGROUPS(arg)
+	startGroups("CT")
+	end
+SLASH_SEETHUZADROUPS1 = '/ktg'
+function SlashCmdList.SEETHUZADROUPS(arg)
+	startGroups("KT")
 end
