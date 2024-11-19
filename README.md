@@ -38,8 +38,14 @@ World of Warcraft
 Commands:
 	/ctg
 	(alias) /stg
+
+ 	/ktg for Kel'Thuzad room
 Shows AddOn
 
 Features:
 - Easy interface for setting up raid group for encounter (drag and drop)
 - Spoopy eye included
+
+  Addition from @laytya:
+  + Kel'Thuzad room
+![image](https://github.com/user-attachments/assets/0318b65b-244b-4c69-b239-2f9eff819274)
